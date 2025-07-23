@@ -14,6 +14,9 @@ import Level from "../pages/master/level";
 import Major from "../pages/master/major";
 import Year from "../pages/master/year";
 import Institution from "../pages/institution";
+import Student from "../pages/student";
+import {Partial as AddStudent} from "../pages/student/partial";
+import Program from "../pages/institution/program";
 
 
 const Router = () => {
@@ -31,6 +34,9 @@ const Router = () => {
                     <Route path="/master-data/jurusan" element={<Major/>} />
                     <Route path="/master-data/tahun-pelajaran" element={<Year/>} />
                     <Route path="/data-lembaga" element={<Institution/>} />
+                    <Route path="/data-lembaga/program" element={<Program/>} />
+                    <Route path="/data-siswa" element={<Student/>} />
+                    <Route path="/data-siswa/tambah" element={<AddStudent/>} />
                 </Route>
             </Route>
             <Route path={`${import.meta.env.BASE_URL}`} element={<NoSidebar/>}>

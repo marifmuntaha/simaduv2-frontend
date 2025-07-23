@@ -99,9 +99,6 @@ const Ladder = () => {
                                 <p>
                                     Textual form controls—like <code className="code-tag">&lt;input&gt;</code>s,{" "}
                                     <code className="code-tag">&lt;select&gt;</code>s, and{" "}
-                                    <code className="code-tag">&lt;textarea&gt;</code>s—are styled with the <code>.form-control</code>{" "}
-                                    className. Included are styles for general appearance, focus state, sizing, and more. Additional classes
-                                    can be used to vary this layout on a per-form basis.
                                 </p>
                             </BlockHeadContent>
                             <BlockHeadContent>

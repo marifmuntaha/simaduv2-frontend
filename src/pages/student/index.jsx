@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from "react";
-import Head from "../../../layout/head";
-import Content from "../../../layout/content";
+import Head from "../../layout/head";
+import Content from "../../layout/content";
 import {
-    BackTo,
     Block,
     BlockBetween,
     BlockHead,
@@ -11,18 +10,17 @@ import {
     Button, Icon,
     PreviewCard,
     ReactDataTable
-} from "../../../components";
+} from "../../components";
 import {ButtonGroup, Spinner} from "reactstrap";
-import {get as getMajor, destroy as destoryMajor} from "../../../utils/api/master/major"
-import Partial from "./partial";
+import {get as getStudent, destroy as destoryStudent} from "../../utils/api/student"
 
-const Major = () => {
+const Student = () => {
     const [sm, updateSm] = useState(false);
     const [refreshData, setRefreshData] = useState(true);
     const [loading, setLoading] = useState(false);
     const [modal, setModal] = useState(false);
-    const [majors, setMajors] = useState([]);
-    const [major, setMajor] = useState(null);
+    const [students, setStudents] = useState([]);
+    const [student, setStudent] = useState(null);
     const Column = [
         {
             name: "Jenjang",
@@ -36,21 +34,28 @@ const Major = () => {
             selector: (row) => row.name,
             sortable: false,
             // hide: 370,
-            // width: "300px",
+
         },
         {
             name: "Alias",
             selector: (row) => row.alias,
             sortable: false,
             // hide: 370,
-            // width: "200px",
+
         },
         {
-            name: "Diskripsi",
-            selector: (row) => row.description,
+            name: "NSM",
+            selector: (row) => row.nsm,
             sortable: false,
             // hide: 370,
-            
+
+        },
+        {
+            name: "NPSN",
+            selector: (row) => row.npsn,
+            sortable: false,
+            // hide: 370,
+
         },
         {
             name: "Aksi",
@@ -61,44 +66,38 @@ const Major = () => {
             cell: (row) => (
                 <ButtonGroup size="sm">
                     <Button outline color="warning" onClick={() => {
-                        setMajor(row);
+                        setStudent(row);
                         setModal(true);
                     }}><Icon name="pen"/></Button>
                     <Button outline color="danger" onClick={() => {
                         setLoading(row.id)
-                        destoryMajor(row.id).then(() => {
+                        destoryStudent(row.id).then(() => {
                             setLoading(false);
                             setRefreshData(true);
                         }).catch(() => setLoading(false))
-                    }}>{loading === row.id ? <Spinner size="sm" /> : <Icon name="trash" /> }</Button>
+                    }}>{loading === row.id ? <Spinner size="sm"/> : <Icon name="trash"/>}</Button>
                 </ButtonGroup>
             )
         },
     ];
-
     useEffect(() => {
-        refreshData && getMajor().then((resp) => {
-            setMajors(resp)
+        refreshData && getStudent().then((resp) => {
+            setStudents(resp)
             setRefreshData(false);
         }).catch(() => setLoading(false));
     }, [refreshData])
     return (
         <React.Fragment>
-            <Head title="Data Jurusan"/>
-            <Content page="component">
-                <BlockHeadContent>
-                    <BackTo link="/" icon="arrow-left">
-                        Beranda
-                    </BackTo>
-                </BlockHeadContent>
+            <Head title="Data Siswa"/>
+            <Content>
                 <Block size="lg">
                     <BlockHead>
                         <BlockBetween>
                             <BlockHeadContent>
-                                <BlockTitle tag="h5">Data Jurusan</BlockTitle>
+                                <BlockTitle tag="h5">Data Siswa</BlockTitle>
                                 <p>
                                     Textual form controls—like <code className="code-tag">&lt;input&gt;</code>s,{" "}
-                                    <code className="code-tag">&lt;select&gt;</code>s
+                                    <code className="code-tag">&lt;select&gt;</code>s, and{" "}
                                 </p>
                             </BlockHeadContent>
                             <BlockHeadContent>
@@ -125,13 +124,12 @@ const Major = () => {
                         </BlockBetween>
                     </BlockHead>
                     <PreviewCard>
-                        <ReactDataTable data={majors} columns={Column} pagination progressPending={refreshData} />
+                        <ReactDataTable data={students} columns={Column} pagination progressPending={refreshData}/>
                     </PreviewCard>
-                    <Partial modal={modal} setModal={setModal} major={major} setMajor={setMajor} setRefreshData={setRefreshData}/>
                 </Block>
             </Content>
         </React.Fragment>
     )
 }
 
-export default Major;
+export default Student;

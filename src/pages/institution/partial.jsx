@@ -45,7 +45,7 @@ const Partial = ({modal, setModal, institution, setInstitution, setRefreshData})
         setValue('phone', institution?.phone)
         setValue('email', institution?.email)
         setValue('website', institution?.website)
-        setValue('logo', institution?.logo)
+        setValue('image', institution?.image)
     }, [institution, setValue])
 
     useEffect(() => {
@@ -193,7 +193,7 @@ const Partial = ({modal, setModal, institution, setInstitution, setRefreshData})
                                     <Input
                                         type="file"
                                         id="customFile"
-                                        onChange={(e) => setValue('logo', e.target.files[0]) }
+                                        onChange={(e) => setValue('image', e.target.files[0]) }
                                     />
                                 </div>
                                 {errors.logo && <span className="invalid">Kolom tidak boleh kosong</span>}
