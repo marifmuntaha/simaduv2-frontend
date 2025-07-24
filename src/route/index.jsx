@@ -17,6 +17,7 @@ import Institution from "../pages/institution";
 import Student from "../pages/student";
 import {Partial as AddStudent} from "../pages/student/partial";
 import Program from "../pages/institution/program";
+import Teacher from "../pages/teacher";
 
 
 const Router = () => {
@@ -37,6 +38,7 @@ const Router = () => {
                     <Route path="/data-lembaga/program" element={<Program/>} />
                     <Route path="/data-siswa" element={<Student/>} />
                     <Route path="/data-siswa/tambah" element={<AddStudent/>} />
+                    <Route path="/data-guru" element={<Teacher/>} />
                 </Route>
             </Route>
             <Route path={`${import.meta.env.BASE_URL}`} element={<NoSidebar/>}>
