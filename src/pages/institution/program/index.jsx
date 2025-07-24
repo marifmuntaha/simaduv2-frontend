@@ -33,7 +33,7 @@ const Program = () => {
         },
         {
             name: "Lembaga",
-            selector: (row) => row.intitution?.name,
+            selector: (row) => row.institution?.ladder?.alias + '. ' + row.institution?.name,
             sortable: false,
             // hide: 370,
 
@@ -78,7 +78,7 @@ const Program = () => {
 
     useEffect(() => {
         refreshData && getProgram().then((resp) => {
-            setProgram(resp)
+            setPrograms(resp)
             setRefreshData(false);
         }).catch(() => setLoading(false));
     }, [refreshData])

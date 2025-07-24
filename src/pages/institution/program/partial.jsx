@@ -38,13 +38,13 @@ const Partial = ({modal, setModal, program, setProgram, setRefreshData}) => {
 
     useEffect(() => {
         getYear({type: 'select'}).then((resp) => setYearOptions(resp));
-        getInstitution({type: 'select'}).then((resp) => setInstitutionOptions(resp));
+        getInstitution({type: 'select', ladder: 'alias'}).then((resp) => setInstitutionOptions(resp));
     }, [])
 
     useEffect(() => {
         setValue('id', program?.id)
         setValue('yearId', program?.year?.id)
-        setValue('institutionId', program?.institution?.name)
+        setValue('institutionId', program?.institution?.id)
         setValue('name', program?.name)
         setValue('alias', program?.alias)
     }, [program, setValue])
@@ -82,12 +82,12 @@ const Partial = ({modal, setModal, program, setProgram, setRefreshData}) => {
                             </div>
                         </div>
                         <div className="form-group col-md-6">
-                            <label className="form-label" htmlFor="intitutionId">Pilih Lembaga</label>
+                            <label className="form-label" htmlFor="institutionId">Pilih Lembaga</label>
                             <div className="form-control-wrap">
                                 <Controller
                                     control={control}
                                     className="form-control"
-                                    name="intitutionId"
+                                    name="institutionId"
                                     render={({field: {onChange, value, ref}}) => (
                                         <RSelect
                                             inputRef={ref}
@@ -97,8 +97,8 @@ const Partial = ({modal, setModal, program, setProgram, setRefreshData}) => {
                                             placeholder="Pilih Lembaga"
                                         />
                                     )}/>
-                                <input type="hidden" id="intitutionId" className="form-control"/>
-                                {errors.intitutionId && <span className="invalid">Kolom tidak boleh kosong.</span>}
+                                <input type="hidden" id="institutionId" className="form-control"/>
+                                {errors.institutionId && <span className="invalid">Kolom tidak boleh kosong.</span>}
                             </div>
                         </div>
                     </Row>
@@ -123,7 +123,7 @@ const Partial = ({modal, setModal, program, setProgram, setRefreshData}) => {
                                 className="form-control"
                                 id="alias"
                                 placeholder="Ex. TFZ"
-                                {...register("name", {required: true})}
+                                {...register("alias", {required: true})}
                             />
                             {errors.alias && <span className="invalid">Kolom tidak boleh kosong</span>}
                         </div>
