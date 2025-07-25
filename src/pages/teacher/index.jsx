@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import Head from "../../layout/head";
 import Content from "../../layout/content";
 import {
-    BackTo,
     Block,
     BlockBetween,
     BlockHead,
@@ -15,6 +14,8 @@ import {
 import {Badge, ButtonGroup, Spinner} from "reactstrap";
 import {get as getTeacher, destroy as destoryTeacher} from "../../utils/api/teacher"
 import Partial from "./partial";
+import moment from "moment";
+import 'moment/locale/id'
 
 const Teacher = () => {
     const [sm, updateSm] = useState(false);
@@ -25,32 +26,47 @@ const Teacher = () => {
     const [teacher, setTeacher] = useState(null);
     const Column = [
         {
+            name: "Lembaga",
+            selector: (row) => row.institution,
+            sortable: false,
+            // hide: 370,
+            cell: (row) => {
+                return row.institution.map((item) => {
+                    return item.alias + ' | '
+                });
+            }
+
+        },
+        {
             name: "PegID",
-            selector: (row) => row.description,
+            selector: (row) => row.pegId,
             sortable: false,
             // hide: 370,
 
         },
         {
             name: "Nama",
-            selector: (row) => row.name,
+            selector: (row) => row.fullName,
             sortable: false,
             // hide: 370,
             // width: "300px",
         },
         {
             name: "Tempat, Tanggal Lahir",
-            selector: (row) => row.name,
+            selector: (row) => row.birthplace + ', ' + moment(row.birthdate, 'YYYY-MM-DD').locale('id').format('DD MMMM YYYY'),
             sortable: false,
             // hide: 370,
             // width: "300px",
         },
         {
-            name: "Tempat, Tanggal Lahir",
-            selector: (row) => row.name,
+            name: "Jenis Kelamin",
+            selector: (row) => row.gender,
             sortable: false,
             // hide: 370,
             // width: "300px",
+            cell: (row) => {
+                return row.gender === 'L' ? 'Laki-laki' : 'Perempuan'
+            }
         },
         {
             name: "Aktif",
@@ -95,12 +111,7 @@ const Teacher = () => {
     return (
         <React.Fragment>
             <Head title="Data Guru"/>
-            <Content page="component">
-                <BlockHeadContent>
-                    <BackTo link="/" icon="arrow-left">
-                        Beranda
-                    </BackTo>
-                </BlockHeadContent>
+            <Content>
                 <Block size="lg">
                     <BlockHead>
                         <BlockBetween>
@@ -137,7 +148,7 @@ const Teacher = () => {
                     <PreviewCard>
                         <ReactDataTable data={teachers} columns={Column} pagination progressPending={refreshData}/>
                     </PreviewCard>
-                    <Partial modal={modal} setModal={setModal} teacher={teacher} setTeacher={setTeacher()}
+                    <Partial modal={modal} setModal={setModal} teacher={teacher} setTeacher={setTeacher}
                              setRefreshData={setRefreshData}/>
                 </Block>
             </Content>

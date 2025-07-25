@@ -4,15 +4,15 @@ import {RToast} from "../../components";
 const api = new APICore()
 
 function get(params) {
-    const baseUrl = '/teacher'
+    const baseUrl = '/user'
     return api.get(baseUrl, params).then((resp) => {
         return resp.result
     })
 }
 
 async function store(params) {
-    const baseUrl = '/teacher'
-    return api.create(baseUrl, params).then((resp) => {
+    const baseUrl = '/user'
+    return api.createWithFile(baseUrl, params).then((resp) => {
         const {message, result} = resp
         RToast(message, 'success');
         return result;
@@ -22,7 +22,7 @@ async function store(params) {
 }
 
 function update(params) {
-    const baseUrl = `/teacher/${params.id}`
+    const baseUrl = `/user/${params.id}`
     return api.updateWithFile(baseUrl, params).then((resp) => {
         const {message} = resp
         RToast(message, 'success');
@@ -32,7 +32,7 @@ function update(params) {
 }
 
 function destroy(id) {
-    const baseUrl = `/teacher/${id}`
+    const baseUrl = `/user/${id}`
     return api.delete(baseUrl).then((resp) => {
         const {message} = resp
         RToast(message, 'success');
