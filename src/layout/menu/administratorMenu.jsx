@@ -40,6 +40,10 @@ const administratorMenu = [
                 text: "Program",
                 link: "/data-lembaga/program",
             },
+            {
+                text: "Rombongan Belajar",
+                link: "/data-lembaga/rombongan-belajar",
+            },
         ],
     },
     {

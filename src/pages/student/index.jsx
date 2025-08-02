@@ -13,6 +13,7 @@ import {
 } from "../../components";
 import {ButtonGroup, Spinner} from "reactstrap";
 import {get as getStudent, destroy as destoryStudent} from "../../utils/api/student"
+import {useNavigate} from "react-router-dom";
 
 const Student = () => {
     const [sm, updateSm] = useState(false);
@@ -80,6 +81,7 @@ const Student = () => {
             )
         },
     ];
+    const navigate = useNavigate();
     useEffect(() => {
         refreshData && getStudent().then((resp) => {
             setStudents(resp)
@@ -112,7 +114,7 @@ const Student = () => {
                                         <ul className="nk-block-tools g-3">
                                             <li>
                                                 <Button color="primary" size={"sm"} outline className="btn-white"
-                                                        onClick={() => setModal(true)}>
+                                                        onClick={() => navigate('tambah')}>
                                                     <Icon name="plus"></Icon>
                                                     <span>TAMBAH</span>
                                                 </Button>

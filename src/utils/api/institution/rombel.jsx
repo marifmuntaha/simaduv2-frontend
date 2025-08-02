@@ -1,28 +1,18 @@
-import {APICore} from './APICore'
-import {RToast} from "../../components";
+import {APICore} from '../APICore.jsx'
+import {RToast} from "../../../components/index.jsx";
 
 const api = new APICore()
 
 function get(params) {
-    const baseUrl = '/user'
+    const baseUrl = '/institution/rombel'
     return api.get(baseUrl, params).then((resp) => {
         return resp.result
     })
 }
 
 async function store(params) {
-    const baseUrl = '/user'
+    const baseUrl = '/institution/rombel'
     return api.createWithFile(baseUrl, params).then((resp) => {
-        const {result} = resp
-        return result;
-    }).catch(() => {
-        throw new Error()
-    });
-}
-
-function update(params) {
-    const baseUrl = `/user/${params.id}`
-    return api.updateWithFile(baseUrl, params).then((resp) => {
         const {message, result} = resp
         RToast(message, 'success');
         return result;
@@ -31,11 +21,21 @@ function update(params) {
     });
 }
 
+function update(params) {
+    const baseUrl = `/institution/rombel/${params.id}`
+    return api.updateWithFile(baseUrl, params).then((resp) => {
+        const {message} = resp
+        RToast(message, 'success');
+    }).catch(() => {
+        throw new Error()
+    });
+}
+
 function destroy(id) {
-    const baseUrl = `/user/${id}`
+    const baseUrl = `/institution/rombel/${id}`
     return api.delete(baseUrl).then((resp) => {
         const {message} = resp
-        return message;
+        RToast(message, 'success');
     }).catch(() => {
         throw new Error()
     });

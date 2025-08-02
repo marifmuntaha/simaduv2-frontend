@@ -1,7 +1,8 @@
 import React, {useCallback, useEffect, useState} from "react";
-import Head from "../../layout/head";
-import Content from "../../layout/content";
+import Head from "../../../layout/head";
+import Content from "../../../layout/content";
 import {
+    BackTo,
     Block,
     BlockBetween,
     BlockHead,
@@ -10,79 +11,73 @@ import {
     Button, Icon,
     PreviewCard,
     ReactDataTable, Row, RSelect
-} from "../../components";
-import {Badge, ButtonGroup, Spinner} from "reactstrap";
-import {get as getTeacher, destroy as destroyTeacher} from "../../utils/api/teacher"
-import {get as getInstitution} from "../../utils/api/institution"
+} from "../../../components";
+import {ButtonGroup, Spinner} from "reactstrap";
+import {get as getRombel, destroy as destroyRombel} from "../../../utils/api/institution/rombel"
 import Partial from "./partial";
-import moment from "moment";
-import 'moment/locale/id'
-import Upload from "./upload";
+import {get as getYear} from "../../../utils/api/master/year";
+import {get as getLevel} from "../../../utils/api/master/level";
+import {get as getInstitution} from "../../../utils/api/institution";
 
-const Teacher = () => {
+const Rombel = () => {
     const [sm, updateSm] = useState(false);
     const [refreshData, setRefreshData] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [modal, setModal] = useState({
-        partial: false,
-        upload: false,
-    });
+    const [modal, setModal] = useState(false);
+    const [yearOptions, setYearOptions] = useState([]);
+    const [yearSelected, setYearSelected] = useState([]);
     const [institutionOptions, setInstitutionOptions] = useState([]);
     const [institutionSelected, setInstitutionSelected] = useState([]);
-    const [statusSelected, setStatusSelected] = useState([]);
-    const [teachers, setTeachers] = useState([]);
-    const [teacher, setTeacher] = useState(null);
+    const [rombels, setRombels] = useState([]);
+    const [rombel, setRombel] = useState(null);
     const Column = [
         {
-            name: "Lembaga",
-            selector: (row) => row.institution,
+            name: "Tahun Pelajaran",
+            selector: (row) => row.year?.name,
             sortable: false,
             // hide: 370,
-            cell: (row) => {
-                return row.institution.map((item) => {
-                    return item.alias + ' | '
-                });
-            }
+            // width: "300px",
         },
         {
-            name: "PegID",
-            selector: (row) => row.pegId,
+            name: "Lembaga",
+            selector: (row) => row.institution?.ladder?.alias + '. ' + row.institution?.name,
+            sortable: false,
+            // hide: 370,
+
+        },
+        {
+            name: "Tingkat",
+            selector: (row) => row.level?.name,
+            sortable: false,
+            // hide: 370,
+
+        },
+        {
+            name: "Jurusan",
+            selector: (row) => row.major?.name,
             sortable: false,
             // hide: 370,
 
         },
         {
             name: "Nama",
-            selector: (row) => row.fullName,
+            selector: (row) => row.name,
             sortable: false,
             // hide: 370,
-            // width: "300px",
+
         },
         {
-            name: "Tempat, Tanggal Lahir",
-            selector: (row) => row.birthplace + ', ' + moment(row.birthdate, 'YYYY-MM-DD').locale('id').format('DD MMMM YYYY'),
+            name: "Alias",
+            selector: (row) => row.alias,
             sortable: false,
             // hide: 370,
-            // width: "300px",
+
         },
         {
-            name: "Jenis Kelamin",
-            selector: (row) => row.gender,
+            name: "Walikelas",
+            selector: (row) => row.teacher?.name,
             sortable: false,
             // hide: 370,
-            // width: "300px",
-            cell: (row) => {
-                return row.gender === 'L' ? 'Laki-laki' : 'Perempuan'
-            }
-        },
-        {
-            name: "Aktif",
-            selector: (row) => row.status,
-            sortable: false,
-            // hide: 370,
-            cell: (row) => (
-                <Badge pill color={row.status ? 'success' : 'danger'}> {row.status ? 'Ya' : 'Tidak'}</Badge>
-            )
 
         },
         {
@@ -94,15 +89,12 @@ const Teacher = () => {
             cell: (row) => (
                 <ButtonGroup size="sm">
                     <Button outline color="warning" onClick={() => {
-                        setTeacher(row);
-                        setModal({
-                            partial: true,
-                            upload: false,
-                        });
+                        setRombel(row);
+                        setModal(true);
                     }}><Icon name="pen"/></Button>
                     <Button outline color="danger" onClick={() => {
                         setLoading(row.id)
-                        destroyTeacher(row.id).then(() => {
+                        destroyRombel(row.id).then(() => {
                             setLoading(false);
                             setRefreshData(true);
                         }).catch(() => setLoading(false))
@@ -111,38 +103,43 @@ const Teacher = () => {
             )
         },
     ];
-    const statusOptions = [
-        {value: 1, label: "Aktif"},
-        {value: 0, label: "Tidak Aktif"},
-    ]
     const params = useCallback(() => {
         let query = {}
+        if (yearSelected.value !== undefined) {
+            query.yearId = yearSelected.value;
+        }
         if (institutionSelected.value !== undefined) {
             query.institutionId = institutionSelected.value;
         }
-        if (statusSelected.value !== undefined) {
-            query.status = statusSelected.value;
-        }
         return query;
-    }, [institutionSelected, statusSelected]);
+    }, [yearSelected, institutionSelected]);
+
     useEffect(() => {
-        getInstitution({type: 'select', ladder: 'alias'}).then(resp => setInstitutionOptions(resp));
-    }, [])
+        getYear({type: 'select'}).then(year => setYearOptions(year));
+        getInstitution({type: 'select', ladder: 'alias'}).then(institution => setInstitutionOptions(institution));
+    }, []);
+
     useEffect(() => {
-        refreshData && getTeacher(params()).then((resp) => {
-            setTeachers(resp)
+        refreshData && getRombel(params()).then((resp) => {
+            setRombels(resp)
             setRefreshData(false);
         }).catch(() => setLoading(false));
     }, [refreshData, params])
+
     return (
         <React.Fragment>
-            <Head title="Data Guru"/>
+            <Head title="Data Rombongan Belajar"/>
             <Content>
+                <BlockHeadContent>
+                    <BackTo link="/" icon="arrow-left">
+                        Beranda
+                    </BackTo>
+                </BlockHeadContent>
                 <Block size="lg">
                     <BlockHead>
                         <BlockBetween>
                             <BlockHeadContent>
-                                <BlockTitle tag="h5">Data Guru</BlockTitle>
+                                <BlockTitle tag="h5">Data Rombongan Belajar</BlockTitle>
                                 <p>
                                     Textual form controls—like <code className="code-tag">&lt;input&gt;</code>s,{" "}
                                     <code className="code-tag">&lt;select&gt;</code>s, and{" "}
@@ -159,21 +156,8 @@ const Teacher = () => {
                                     <div className="toggle-expand-content" style={{display: sm ? "block" : "none"}}>
                                         <ul className="nk-block-tools g-3">
                                             <li>
-                                                <Button color="danger" size={"sm"} outline className="btn-white"
-                                                        onClick={() => setModal({
-                                                            partial: false,
-                                                            upload: true,
-                                                        })}>
-                                                    <Icon name="upload"></Icon>
-                                                    <span>UNGGAH</span>
-                                                </Button>
-                                            </li>
-                                            <li>
                                                 <Button color="primary" size={"sm"} outline className="btn-white"
-                                                        onClick={() => setModal({
-                                                            partial: true,
-                                                            upload: false,
-                                                        })}>
+                                                        onClick={() => setModal(true)}>
                                                     <Icon name="plus"></Icon>
                                                     <span>TAMBAH</span>
                                                 </Button>
@@ -186,7 +170,20 @@ const Teacher = () => {
                     </BlockHead>
                     <PreviewCard>
                         <Row className="gy-0">
-                            <div className="form-group col-md-6">
+                            <div className="form-group col-md-4">
+                                <div className="form-control-wrap">
+                                    <RSelect
+                                        options={yearOptions}
+                                        value={yearSelected}
+                                        onChange={(val) => {
+                                            setYearSelected(val);
+                                            setRefreshData(true);
+                                        }}
+                                        placeholder="Pilih Tahun Pelajaran"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group col-md-4">
                                 <div className="form-control-wrap">
                                     <RSelect
                                         options={institutionOptions}
@@ -199,29 +196,15 @@ const Teacher = () => {
                                     />
                                 </div>
                             </div>
-                            <div className="form-group col-md-6">
-                                <div className="form-control-wrap">
-                                    <RSelect
-                                        options={statusOptions}
-                                        value={statusSelected}
-                                        onChange={(val) => {
-                                            setStatusSelected(val);
-                                            setRefreshData(true);
-                                        }}
-                                        placeholder="Pilih Status"
-                                    />
-                                </div>
-                            </div>
                         </Row>
-                        <ReactDataTable data={teachers} columns={Column} pagination progressPending={refreshData}/>
+                        <ReactDataTable data={rombels} columns={Column} pagination progressPending={refreshData}/>
                     </PreviewCard>
-                    <Partial modal={modal} setModal={setModal} teacher={teacher} setTeacher={setTeacher}
+                    <Partial modal={modal} setModal={setModal} rombel={rombel} setRombel={setRombel}
                              setRefreshData={setRefreshData}/>
-                    <Upload modal={modal} setModal={setModal} setRefreshData={setRefreshData}/>
                 </Block>
             </Content>
         </React.Fragment>
     )
 }
 
-export default Teacher;
+export default Rombel;

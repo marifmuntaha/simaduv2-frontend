@@ -140,7 +140,13 @@ class APICore {
     updateWithFile = (url, data) => {
         const formData = new FormData()
         for (const k in data) {
-            formData.append(k, data[k])
+            if (Array.isArray(data[k])) {
+                for (const key in data[k]) {
+                    formData.append(`${k}[]`, data[k][key])
+                }
+            } else {
+                formData.append(k, data[k])
+            }
         }
         formData.append('_method', 'put')
         const config = {

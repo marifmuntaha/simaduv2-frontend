@@ -5,7 +5,7 @@ import {Button, Modal, ModalBody, ModalHeader, Spinner} from "reactstrap";
 import {Icon, Row, RSelect} from "../../components";
 import {Controller, useForm} from "react-hook-form";
 import {store as storeTeacher, update as updateTeacher} from "../../utils/api/teacher"
-import {store as storeUser, destroy as destroyUser} from "../../utils/api/user"
+import {store as storeUser, update as updateUser, destroy as destroyUser} from "../../utils/api/user"
 import {get as getInstitution} from "../../utils/api/institution"
 import moment from "moment";
 
@@ -15,11 +15,12 @@ const Partial = ({modal, setModal, teacher, setTeacher, setRefreshData}) => {
     const [loading, setLoading] = useState(false);
     const [birthdateSelected, setBirthdateSelected] = useState(new Date());
     const [institutionOptions, setInstitutionOptions] = useState([]);
+    const [institutionSelected, setInstitutionSelected] = useState([]);
     const genderOptions = [
         {value: 'L', label: 'Laki-laki'},
         {value: 'P', label: 'Perempuan'},
     ]
-    const {reset, handleSubmit, control, watch, register, formState: {errors}, getValues, setValue} = useForm();
+    const {reset, handleSubmit, control, register, formState: {errors}, getValues, setValue} = useForm();
     const onSubmit = () => {
         teacher === null ? onStore(getValues()) : onUpdate(getValues());
     }
@@ -35,7 +36,7 @@ const Partial = ({modal, setModal, teacher, setTeacher, setRefreshData}) => {
         }).then((resp) => {
             storeTeacher({
                 userId: resp.id,
-                institution: params.institution,
+                institution: institutionSelected.map((i) => i.value),
                 name: params.name,
                 pegId: params.pegId,
                 birthplace: params.birthplace,
@@ -62,17 +63,61 @@ const Partial = ({modal, setModal, teacher, setTeacher, setRefreshData}) => {
         });
     }
     const onUpdate = (params) => {
-        setLoading(true)
-        updateTeacher(params).then(() => {
+        setLoading(true);
+        updateUser({
+            id: params.userId,
+            name: params.name,
+            email: params.email,
+            username: params.pegId,
+            password: params.birthplace,
+            phone: params.phone,
+            role: '4'
+        }).then((resp) => {
+            updateTeacher({
+                id: params.id,
+                userId: resp.id,
+                institution: institutionSelected.map((i) => i.value),
+                name: params.name,
+                pegId: params.pegId,
+                birthplace: params.birthplace,
+                birthdate: moment(params.birthdate).format('YYYY-MM-DD'),
+                gender: params.gender,
+                frontTitle: params.frontTitle,
+                backTitle: params.backTitle,
+                phone: params.phone,
+                email: params.email,
+                address: params.address,
+            }).then(() => {
+                setLoading(false);
+                setRefreshData(true);
+                toggle();
+            }).catch(() => {
+                updateUser({
+                    id: params.userId,
+                    name: params.name,
+                    email: params.email,
+                    username: params.pegId,
+                    password: params.birthplace,
+                    phone: params.phone,
+                    role: '4'
+                }).then(() => {
+                    setLoading(false);
+                }).catch(() => {
+                    setLoading(false)
+                })
+            })
+        }).catch(() => {
             setLoading(false)
-            setRefreshData(true)
-            toggle()
-        }).catch(() => setLoading(false));
+        });
     }
     const toggle = () => {
-        setModal(false);
+        setModal({
+            partial: false,
+            upload: false,
+        });
         setTeacher(null);
         setBirthdateSelected(new Date());
+        setInstitutionSelected([]);
         reset();
     };
 
@@ -88,15 +133,20 @@ const Partial = ({modal, setModal, teacher, setTeacher, setRefreshData}) => {
         setValue('birthplace', teacher?.birthplace)
         setValue('birthdate', teacher?.birthdate)
         setValue('gender', teacher?.gender)
-        setValue('frontTitle', teacher?.frontTitle)
-        setValue('backTitle', teacher?.backTitle)
+        setValue('frontTitle', teacher?.frontTitle ? teacher.frontTitle : '')
+        setValue('backTitle', teacher?.backTitle ? teacher.backTitle : '')
         setValue('phone', teacher?.phone)
         setValue('email', teacher?.email)
         setValue('address', teacher?.address)
-    }, [teacher, setValue])
+        setInstitutionSelected(() => {
+            return teacher?.institution?.map((i) => {
+                return institutionOptions.find((c) => c.value === i.id);
+            })
+        })
+    }, [teacher, setValue, institutionOptions])
 
     return (
-        <Modal isOpen={modal} toggle={toggle} size="md">
+        <Modal isOpen={modal.partial} toggle={toggle} size="md">
             <ModalHeader toggle={toggle} close={
                 <button className="close" onClick={toggle}>
                     <Icon name="cross"/>
@@ -109,20 +159,15 @@ const Partial = ({modal, setModal, teacher, setTeacher, setRefreshData}) => {
                     <div className="form-group">
                         <label className="form-label" htmlFor="institution">Pilih Lembaga</label>
                         <div className="form-control-wrap">
-                            <Controller
-                                control={control}
-                                className="form-control"
-                                name="institution"
-                                render={({field: {onChange, value, ref}}) => (
-                                    <RSelect
-                                        isMulti
-                                        inputRef={ref}
-                                        options={institutionOptions}
-                                        value={institutionOptions?.find((c) => c.value === value)}
-                                        onChange={(val) => onChange(val.map((e) => e.value))}
-                                        placeholder="Pilih Lembaga"
-                                    />
-                                )}/>
+                            <RSelect
+                                isMulti
+                                options={institutionOptions}
+                                value={institutionSelected}
+                                onChange={(val) => {
+                                    setInstitutionSelected(val)
+                                }}
+                                placeholder="Pilih Lembaga"
+                            />
                             <input type="hidden" id="institution" className="form-control"/>
                             {errors.institution && <span className="invalid">Kolom tidak boleh kosong.</span>}
                         </div>

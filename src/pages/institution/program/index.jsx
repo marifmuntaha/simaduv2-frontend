@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
-import Head from "../../../layout/head/index.jsx";
-import Content from "../../../layout/content/index.jsx";
+import React, {useCallback, useEffect, useState} from "react";
+import Head from "../../../layout/head";
+import Content from "../../../layout/content";
 import {
     BackTo,
     Block,
@@ -10,16 +10,22 @@ import {
     BlockTitle,
     Button, Icon,
     PreviewCard,
-    ReactDataTable
-} from "../../../components/index.jsx";
+    ReactDataTable, Row, RSelect
+} from "../../../components";
 import {ButtonGroup, Spinner} from "reactstrap";
-import {get as getProgram, destroy as destoryProgram} from "../../../utils/api/institution/program"
-import Partial from "./partial.jsx";
+import {get as getProgram, destroy as destroyProgram} from "../../../utils/api/institution/program"
+import {get as getYear} from "../../../utils/api/master/year"
+import {get as getInstitution} from "../../../utils/api/institution"
+import Partial from "./partial";
 
 const Program = () => {
     const [sm, updateSm] = useState(false);
     const [refreshData, setRefreshData] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [yearOptions, setYearOptions] = useState([]);
+    const [yearSelected, setYearSelected] = useState([]);
+    const [institutionOptions, setInstitutionOptions] = useState([]);
+    const [institutionSelected, setInstitutionSelected] = useState([])
     const [modal, setModal] = useState(false);
     const [programs, setPrograms] = useState([]);
     const [program, setProgram] = useState(null);
@@ -66,7 +72,7 @@ const Program = () => {
                     }}><Icon name="pen"/></Button>
                     <Button outline color="danger" onClick={() => {
                         setLoading(row.id)
-                        destoryProgram(row.id).then(() => {
+                        destroyProgram(row.id).then(() => {
                             setLoading(false);
                             setRefreshData(true);
                         }).catch(() => setLoading(false))
@@ -75,13 +81,26 @@ const Program = () => {
             )
         },
     ];
-
+    const params = useCallback(() => {
+        let query = {}
+        if (yearSelected.value !== undefined) {
+            query.yearId = yearSelected.value;
+        }
+        if (institutionSelected.value !== undefined) {
+            query.institutionId = institutionSelected.value;
+        }
+        return query;
+    }, [yearSelected, institutionSelected]);
     useEffect(() => {
-        refreshData && getProgram().then((resp) => {
+        getYear({type: 'select'}).then(year => setYearOptions(year));
+        getInstitution({type: 'select', ladder: 'alias'}).then(institution => setInstitutionOptions(institution));
+    }, []);
+    useEffect(() => {
+        refreshData && getProgram(params()).then((resp) => {
             setPrograms(resp)
             setRefreshData(false);
         }).catch(() => setLoading(false));
-    }, [refreshData])
+    }, [refreshData, params])
     return (
         <React.Fragment>
             <Head title="Data Program"/>
@@ -125,6 +144,34 @@ const Program = () => {
                         </BlockBetween>
                     </BlockHead>
                     <PreviewCard>
+                        <Row className="gy-0">
+                            <div className="form-group col-md-6">
+                                <div className="form-control-wrap">
+                                    <RSelect
+                                        options={yearOptions}
+                                        value={yearSelected}
+                                        onChange={(val) => {
+                                            setYearSelected(val);
+                                            setRefreshData(true);
+                                        }}
+                                        placeholder="Pilih Tahun Pelajaran"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group col-md-6">
+                                <div className="form-control-wrap">
+                                    <RSelect
+                                        options={institutionOptions}
+                                        value={institutionSelected}
+                                        onChange={(val) => {
+                                            setInstitutionSelected(val);
+                                            setRefreshData(true);
+                                        }}
+                                        placeholder="Pilih Lembaga"
+                                    />
+                                </div>
+                            </div>
+                        </Row>
                         <ReactDataTable data={programs} columns={Column} pagination progressPending={refreshData}/>
                     </PreviewCard>
                     <Partial modal={modal} setModal={setModal} program={program} setProgram={setProgram}
