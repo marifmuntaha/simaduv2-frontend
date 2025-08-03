@@ -13,10 +13,22 @@ import {
 } from "../../components";
 import {Steps, StepsProvider, useSteps} from "react-step-builder";
 import FormPersonal from "./FormPersonal";
-import FormActivity from "./FormActivity.jsx";
+import FormActivity from "./FormActivity";
+import {useForm} from "react-hook-form";
+import FormParent from "./FormParent.jsx";
 
 export const Add = () => {
     const [sm, updateSm] = useState(false);
+    const [formData, setFormData] = useState({
+        name: ''
+    })
+    const methods = useForm()
+    const handleReset = () => {
+        setFormData({
+            name: ''
+        })
+        methods.reset()
+    }
     return (
         <React.Fragment>
             <Head title="Tambah Siswa" />
@@ -43,14 +55,14 @@ export const Add = () => {
                                         <ul className="nk-block-tools g-3">
                                             <li>
                                                 <Button color="primary" size={"sm"} outline className="btn-white"
-                                                        onClick={() => alert('tesing')}>
+                                                        onClick={() => alert('testing')}>
                                                     <Icon name="save"></Icon>
                                                     <span>SIMPAN</span>
                                                 </Button>
                                             </li>
                                             <li>
                                                 <Button color="danger" size={"sm"} outline className="btn-white"
-                                                        onClick={() => alert('tesing')}>
+                                                        onClick={() => handleReset()}>
                                                     <Icon name="reload"></Icon>
                                                     <span>RESET</span>
                                                 </Button>
@@ -63,7 +75,7 @@ export const Add = () => {
                     </BlockHead>
                     <PreviewCard>
                         <StepsProvider>
-                            <Step/>
+                            <Step formData={formData} setFormData={setFormData} methods={methods}/>
                         </StepsProvider>
                     </PreviewCard>
                 </Block>
@@ -74,9 +86,8 @@ export const Add = () => {
 
 
 
-const Step = () => {
-    const [formData, setFormData] = useState({})
-    const { prev, next, total, current } = useSteps();
+const Step = ({formData, setFormData, methods}) => {
+    const { prev, next, current } = useSteps();
     return (
         <div className="nk-wizard nk-wizard-simple is-alter wizard clearfix">
             <div className="steps clearfix">
@@ -87,6 +98,14 @@ const Step = () => {
                         </a>
                     </li>
                     <li className={current >= 2 ? "first done" : "first"}>
+                        <a href={"#"} onClick={(ev) => {
+                            ev.preventDefault()
+                            next()
+                        }}>
+                            <span className="number">02</span> <h5>Informasi Orangtua</h5>
+                        </a>
+                    </li>
+                    <li className={current >= 3 ? "first done" : "first"}>
                         <a href={"#"} onClick={(ev) => ev.preventDefault()}>
                             <span className="number">02</span> <h5>Aktifitas Siswa</h5>
                         </a>
@@ -94,7 +113,8 @@ const Step = () => {
                 </ul>
             </div>
             <Steps>
-                <FormPersonal next={next} formData={formData} setFormData={setFormData} />
+                <FormPersonal next={next} formData={formData} setFormData={setFormData} methods={methods}/>
+                <FormParent next={next} formData={formData} setFormData={setFormData} methods={methods}/>
                 <FormActivity prev={prev} next={next} formData={formData} setFormData={setFormData} />
                 <div>
                     <h1>Step 2</h1>

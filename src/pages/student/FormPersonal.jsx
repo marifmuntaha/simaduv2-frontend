@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {useForm} from "react-hook-form";
 import {Button, Col, Row} from "reactstrap";
 import {RSelect} from "../../components";
 import DatePicker from "react-datepicker";
 import moment from "moment";
 
-const FormPersonal = ({formData, setFormData, ...props}) => {
+const FormPersonal = ({formData, setFormData, methods, ...props}) => {
     const [birthdateSelected, setBirthdateSelected] = useState(new Date());
     const genderOptions = [
         {value: "L", label: "Laki-laki"},
@@ -14,11 +13,14 @@ const FormPersonal = ({formData, setFormData, ...props}) => {
     const onInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors } } = methods;
     const submitForm = () => {
         props.next();
     };
 
+    useEffect(() => {
+
+    }, [formData]);
     return (
         <form className="content clearfix" onSubmit={handleSubmit(submitForm)}>
             <Row className="gy-4">

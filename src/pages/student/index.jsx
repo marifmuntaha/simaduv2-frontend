@@ -11,9 +11,11 @@ import {
     PreviewCard,
     ReactDataTable
 } from "../../components";
-import {ButtonGroup, Spinner} from "reactstrap";
+import {Badge, ButtonGroup, Spinner} from "reactstrap";
 import {get as getStudent, destroy as destoryStudent} from "../../utils/api/student"
 import {useNavigate} from "react-router-dom";
+import moment from "moment";
+import 'moment/locale/id'
 
 const Student = () => {
     const [sm, updateSm] = useState(false);
@@ -25,37 +27,74 @@ const Student = () => {
     const Column = [
         {
             name: "Jenjang",
-            selector: (row) => row.ladder?.alias,
+            selector: (row) => row.activity?.institution?.alias,
             sortable: false,
             // hide: 370,
-            // width: "300px",
+            width: "100px",
         },
         {
             name: "Nama",
             selector: (row) => row.name,
+            sortable: true,
+            // hide: 370,
+            width: "300px",
+
+        },
+        {
+            name: "Tempat, Tanggal Lahir",
+            selector: (row) => row.birthplace + ', ' + moment(row.birthdate).locale('id').format('DD MMM YYYY'),
             sortable: false,
             // hide: 370,
 
         },
         {
-            name: "Alias",
-            selector: (row) => row.alias,
+            name: "NISN",
+            selector: (row) => row.nisn,
             sortable: false,
             // hide: 370,
 
         },
         {
-            name: "NSM",
-            selector: (row) => row.nsm,
+            name: "NISM",
+            selector: (row) => row.nism,
             sortable: false,
             // hide: 370,
 
         },
         {
-            name: "NPSN",
-            selector: (row) => row.npsn,
+            name: "Status",
+            selector: (row) => row.activity.status,
             sortable: false,
             // hide: 370,
+            cell: (row) => {
+                switch(row?.activity?.status) {
+                    case '1' :
+                        return <Badge pill color="success">Aktif</Badge>
+                    case '2':
+                        return <Badge pill color="danger">Keluar</Badge>
+                    default:
+                        return <Badge pill color="info">Alumni</Badge>
+                }
+            }
+
+        },
+        {
+            name: "Rombel",
+            selector: (row) => row?.activity?.rombel,
+            sortable: false,
+            // hide: 370,
+
+        },
+        {
+            name: "Boarding",
+            selector: (row) => row?.activity?.boardingId,
+            sortable: false,
+            // hide: 370,
+            cell: (row) => (
+                row?.activity?.boardingId
+                    ? <Badge pill color="success">YA</Badge>
+                    : <Badge pill color="danger">No</Badge>
+            )
 
         },
         {
@@ -66,6 +105,10 @@ const Student = () => {
             width: "150px",
             cell: (row) => (
                 <ButtonGroup size="sm">
+                    <Button outline color="info" onClick={() => {
+                        setStudent(row);
+                        setModal(true);
+                    }}><Icon name="eye"/></Button>
                     <Button outline color="warning" onClick={() => {
                         setStudent(row);
                         setModal(true);

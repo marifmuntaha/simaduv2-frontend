@@ -15,10 +15,10 @@ import Major from "../pages/master/major";
 import Year from "../pages/master/year";
 import Institution from "../pages/institution";
 import Student from "../pages/student";
-import {Add as AddStudent} from "../pages/student/partial.jsx";
+import {Add as AddStudent} from "../pages/student/partial";
 import Program from "../pages/institution/program";
 import Teacher from "../pages/teacher";
-import Rombel from "../pages/institution/rombel/index.jsx";
+import Rombel from "../pages/institution/rombel/index";
 
 
 const Router = () => {
