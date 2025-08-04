@@ -32,6 +32,10 @@ const FormActivity = ({formData, setFormData, ...props}) => {
         getInstitution({type: 'select', ladder: 'alias'}).then((resp) => setInstitutionOptions(resp));
     }, [])
 
+    useEffect(() => {
+        console.log(formData)
+    }, [])
+
     return (
         <form className="content clearfix" onSubmit={handleSubmit(onSubmit)}>
             <Row className="gy-4">

@@ -18,7 +18,9 @@ import FormActivity from "./FormActivity";
 import {useForm} from "react-hook-form";
 import {store as storeUser, destroy as destroyUser} from "../../utils/api/user"
 import {store as storeStudent, destroy as destroyStudent} from "../../utils/api/student"
+import {store as storeParent, destroy as destroyParent} from "../../utils/api/student/parent"
 import {store as storeActivity} from "../../utils/api/student/activity"
+import FormAddress from "./FormAddress.jsx";
 
 export const Add = () => {
     const [sm, updateSm] = useState(false);
@@ -49,76 +51,87 @@ export const Add = () => {
     })
     const methods = useForm()
     const onSubmit = () => {
-        const paramsUserStudent = {
-            name: formData.name,
-            email: formData.email,
-            username: formData.nisn,
-            password: formData.birthplace,
-            phone: formData.phone,
-            role: '5'
+        const paramsUserParent = {
+            name: formData.guardName,
+            email: formData.guardEmail,
+            username: formData.guardNIK,
+            password: formData.guardBirthplace,
+            phone: formData.guardPhone,
+            role: '6'
         }
-        storeUser(paramsUserStudent).then(respUserStudent=>{
-            const paramsStudent = {
-                userId: respUserStudent.id,
-                nisn: formData.nisn,
-                nism: formData.nism,
-                name: formData.name,
-                gender: formData.gender,
-                birthplace: formData.birthplace,
-                birthdate: formData.birthdate,
-                email: formData.email,
-                phone: formData.phone,
+        storeUser(paramsUserParent).then(respUserParent => {
+            const paramsStudentParent = {
+                userId: respUserParent.id,
+                numberKk: formData.numberKk,
+                headFamily: formData.headFamily,
+                fatherStatus: formData.fatherStatus,
+                fatherName: formData.fatherName,
+                fatherNIK: formData.fatherNIK,
+                fatherBirthplace: formData.fatherBirthplace,
+                fatherBirthdate: formData.fatherBirthdate,
+                fatherEmail: formData.fatherEmail,
+                fatherPhone: formData.fatherPhone,
+                motherStatus: formData.motherStatus,
+                motherName: formData.motherName,
+                motherNIK: formData.motherNIK,
+                motherBirthplace: formData.motherBirthplace,
+                motherBirthdate: formData.motherBirthdate,
+                motherEmail: formData.motherEmail,
+                motherPhone: formData.motherPhone,
+                guardStatus: formData.guardStatus,
+                guardName: formData.guardName,
+                guardNIK: formData.guardNIK,
+                guardBirthplace: formData.guardBirthplace,
+                guardBirthdate: formData.guardBirthdate,
+                guardEmail: formData.guardEmail,
+                guardPhone: formData.guardPhone,
             }
-            storeStudent(paramsStudent).then((respStudent) => {
-                const paramsUserParent = {
-                    name: formData.guardName,
-                    email: formData.guardEmail,
-                    username: formData.guardNIK,
-                    password: formData.guardBirthplace,
-                    phone: formData.guardPhone,
-                    role: '6'
+            storeParent(paramsStudentParent).then(respStudentParent => {
+                const paramsUserStudent = {
+                    name: formData.name,
+                    email: formData.email,
+                    username: formData.nisn,
+                    password: formData.birthplace,
+                    phone: formData.phone,
+                    role: '5'
                 }
-                storeUser(paramsUserParent).then(respUserParent => {
-
-                })
-                const paramsStudentParent = {
-                    studentId: respStudent.id,
-                    numberKk: formData.numberKk,
-                    headFamily: formData.headFamily,
-                    fatherStatus: formData.fatherStatus,
-                    fatherName: formData.fatherName,
-                    fatherNIK: formData.fatherNIK,
-                    fatherBirthplace: formData.fatherBirthplace,
-                    fatherBirthdate: formData.fatherBirthdate,
-                    fatherEmail: formData.fatherEmail,
-                    fatherPhone: formData.fatherPhone,
-                    motherStatus: formData.motherStatus,
-                    motherName: formData.motherName,
-                    motherNIK: formData.motherNIK,
-                    motherBirthplace: formData.motherBirthplace,
-                    motherBirthdate: formData.motherBirthdate,
-                    motherEmail: formData.motherEmail,
-                    motherPhone: formData.motherPhone,
-                    guardStatus: formData.guardStatus,
-                    guardName: formData.guardName,
-                    guardNIK: formData.guardNIK,
-                    guardBirthplace: formData.guardBirthplace,
-                    guardBirthdate: formData.guardBirthdate,
-                    guardEmail: formData.guardEmail,
-                    guardPhone: formData.guardPhone,
-                }
-                const params = {
-                    status: formData.status,
-                    studentId: respStudent.id,
-                    yearId: formData.yearId,
-                    institutionId: formData.institutionId,
-                }
-                storeActivity(params).catch(()=>{
-                    destroyStudent(respStudent.id)
-                    destroyUser(respUserStudent.id)
+                storeUser(paramsUserStudent).then(respUserStudent=>{
+                    const paramsStudent = {
+                        userId: respUserStudent.id,
+                        parentId: respStudentParent.id,
+                        nisn: formData.nisn,
+                        nism: formData.nism,
+                        name: formData.name,
+                        gender: formData.gender,
+                        birthplace: formData.birthplace,
+                        birthdate: formData.birthdate,
+                        email: formData.email,
+                        phone: formData.phone,
+                    }
+                    storeStudent(paramsStudent).then((respStudent) => {
+                        const params = {
+                            status: formData.status,
+                            studentId: respStudent.id,
+                            yearId: formData.yearId,
+                            institutionId: formData.institutionId,
+                        }
+                        storeActivity(params).catch(()=>{
+                            destroyStudent(respStudent.id)
+                            destroyUser(respUserStudent.id)
+                            destroyParent(respStudentParent.id)
+                            destroyUser(respUserParent.id)
+                        })
+                    }).catch(() => {
+                        destroyUser(respUserStudent.id)
+                        destroyParent(respStudentParent.id)
+                        destroyUser(respUserParent.id)
+                    })
+                }).catch(() => {
+                    destroyParent(respStudentParent.id)
+                    destroyUser(respUserParent.id)
                 })
             }).catch(() => {
-                destroyUser(respUserStudent.id)
+                destroyUser(respUserParent.id)
             })
         })
     }
@@ -218,16 +231,21 @@ const Step = ({formData, setFormData, methods}) => {
                         </a>
                     </li>
                     <li className={current >= 2 ? "first done" : "first"}>
-                        <a href={"#"} onClick={(ev) => {
-                            ev.preventDefault()
-                            next()
-                        }}>
+                        <a href={"#"} onClick={(ev) => ev.preventDefault()}>
                             <span className="number">02</span> <h5>Informasi Orangtua</h5>
                         </a>
                     </li>
                     <li className={current >= 3 ? "first done" : "first"}>
+                        <a href={"#"} onClick={(ev) => {
+                            ev.preventDefault()
+                            next()
+                        }}>
+                            <span className="number">03</span> <h5>Informasi Tempat Tinggal</h5>
+                        </a>
+                    </li>
+                    <li className={current >= 4 ? "first done" : "first"}>
                         <a href={"#"} onClick={(ev) => ev.preventDefault()}>
-                            <span className="number">02</span> <h5>Aktifitas Siswa</h5>
+                            <span className="number">04</span> <h5>Aktifitas Siswa</h5>
                         </a>
                     </li>
                 </ul>
@@ -235,6 +253,7 @@ const Step = ({formData, setFormData, methods}) => {
             <Steps>
                 <FormPersonal next={next} prev={prev} formData={formData} setFormData={setFormData} methods={methods}/>
                 <FormParent next={next} prev={prev} formData={formData} setFormData={setFormData} methods={methods}/>
+                <FormAddress next={next} prev={prev} formData={formData} setFormData={setFormData} methods={methods}/>
                 <FormActivity prev={prev} next={next} formData={formData} setFormData={setFormData} />
                 <div>
                     <h1>Step 2</h1>

@@ -155,14 +155,14 @@ const FormPersonal = ({formData, setFormData, methods, ...props}) => {
                         </div>
                     </div>
                 </Col>
-                <div className="actions clearfix">
-                    <ul>
-                        <li>
-                            <Button color="primary" type="submit">Lanjut</Button>
-                        </li>
-                    </ul>
-                </div>
             </Row>
+            <div className="actions clearfix">
+                <ul>
+                    <li>
+                        <Button color="primary" type="submit">Lanjut</Button>
+                    </li>
+                </ul>
+            </div>
         </form>
     );
 };

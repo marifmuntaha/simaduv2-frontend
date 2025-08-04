@@ -1,15 +1,17 @@
 import React, {useEffect, useState} from "react";
-import {Col, Row, RSelect} from "../../components";
+import {Col, Icon, Row, RSelect, RToast} from "../../components";
 import DatePicker from "react-datepicker";
 import moment from "moment/moment";
 import "moment/locale/id"
-import {Button} from "reactstrap";
+import {Button, Spinner} from "reactstrap";
+import {get as getParent} from "../../utils/api/student/parent"
 
 const FormParent = ({formData, setFormData, methods, ...props}) => {
+    const [loading, setLoading] = useState(false);
     const [fatherBirthdate, setFatherBirthdate] = useState(new Date());
     const [motherBirthDate, setMotherBirthDate] = useState(new Date());
     const [guardBirthDate, setGuardBirthDate] = useState(new Date());
-    const { register, handleSubmit, formState: { errors }, setValue } = methods;
+    const {register, handleSubmit, formState: {errors}, setValue} = methods;
     const statusParentOptions = [
         {value: 1, label: "Masih Hidup"},
         {value: 2, label: "Meninggal"},
@@ -21,25 +23,91 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
         {value: 3, label: "Lainnya"},
     ]
     const onInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setFormData({...formData, [e.target.name]: e.target.value});
     };
     const onSubmit = () => {
         if (formData.guardStatus === 1) {
-            setFormData({...formData, guardName: formData.fatherName})
-            setFormData({...formData, guardNIK: formData.fatherNIK})
-            setFormData({...formData, guardBirthplace: formData.fatherBirthplace})
-            setFormData({...formData, guardBirthdate: formData.fatherBirthdate})
-            setFormData({...formData, guardEmail: formData.fatherEmail})
-            setFormData({...formData, guardPhone: formData.fatherPhone})
+            setFormData({
+                ...formData,
+                guardName: formData.fatherName,
+                guardNIK: formData.fatherNIK,
+                guardBirthplace: formData.fatherBirthplace,
+                guardBirthdate: formData.fatherBirthdate,
+                guardEmail: formData.fatherEmail,
+                guardPhone: formData.fatherPhone
+            })
         } else if (formData.guardStatus === 2) {
-            setFormData({...formData, guardName: formData.motherName})
-            setFormData({...formData, guardNIK: formData.motherNIK})
-            setFormData({...formData, guardBirthplace: formData.motherBirthplace})
-            setFormData({...formData, guardBirthdate: formData.motherBirthdate})
-            setFormData({...formData, guardEmail: formData.motherEmail})
-            setFormData({...formData, guardPhone: formData.motherPhone})
+            setFormData({
+                ...formData,
+                guardName: formData.motherName,
+                guardNIK: formData.motherNIK,
+                guardBirthplace: formData.motherBirthplace,
+                guardBirthdate: formData.motherBirthdate,
+                guardEmail: formData.motherEmail,
+                guardPhone: formData.motherPhone
+            })
         }
         props.next()
+    }
+
+    const checkParent = (e) => {
+        e.preventDefault()
+        setLoading(true);
+        if (formData.numberKk !== undefined) {
+            getParent({numberKK: formData.numberKk}).then(resp => {
+                const parent = resp[0]
+                setValue('headFamily', parent.headFamily)
+                setValue('fatherName', parent.fatherName)
+                setValue('fatherNIK', parent.fatherNIK)
+                setValue('fatherBirthplace', parent.fatherBirthplace)
+                setGuardBirthDate(moment(parent.fatherBirthdate, 'YYYY-MM-DD').toDate())
+                setValue('fatherEmail', parent.fatherEmail)
+                setValue('fatherPhone', parent.fatherPhone)
+                setValue('motherName', parent.motherName)
+                setValue('motherNIK', parent.motherNIK)
+                setValue('motherBirthplace', parent.motherBirthplace)
+                setGuardBirthDate(moment(parent.motherBirthdate, 'YYYY-MM-DD').toDate())
+                setValue('motherEmail', parent.motherEmail)
+                setValue('motherPhone', parent.motherPhone)
+                setValue('guardName', parent.guardName)
+                setValue('guardNIK', parent.guardNIK)
+                setValue('guardBirthplace', parent.guardBirthplace)
+                setGuardBirthDate(moment(parent.guardBirthdate, 'YYYY-MM-DD').toDate())
+                setValue('guardEmail', parent.guardEmail)
+                setValue('guardPhone', parent.guardPhone)
+                setFormData({
+                    ...formData,
+                    fatherStatus: parseInt(parent.fatherStatus),
+                    fatherName: parent.fatherName,
+                    fatherNIK: parent.fatherNIK,
+                    fatherBirthplace: parent.fatherBirthplace,
+                    fatherBirthdate: parent.fatherBirthdate,
+                    fatherEmail: parent.fatherEmail,
+                    fatherPhone: parent.fatherPhone,
+                    motherStatus: parseInt(parent.motherStatus),
+                    motherName: parent.motherName,
+                    motherNIK: parent.motherNIK,
+                    motherBirthplace: parent.motherBirthplace,
+                    motherBirthdate: parent.motherBirthdate,
+                    motherEmail: parent.motherEmail,
+                    motherPhone: parent.motherPhone,
+                    guardStatus: parseInt(parent.guardStatus),
+                    guardName: parent.guardName,
+                    guardNIK: parent.guardNIK,
+                    guardBirthplace: parent.guardBirthplace,
+                    guardBirthdate: parent.guardBirthdate,
+                    guardEmail: parent.guardEmail,
+                    guardPhone: parent.guardPhone
+                })
+                setLoading(false);
+                RToast('Data orangtua ditemukan', 'success')
+            }).catch(() => {
+                setLoading(false);
+            })
+        } else {
+            RToast('Kolom Nomor Kartu Keluarga tidak boleh kosong')
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -63,6 +131,45 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
         <React.Fragment>
             <form className="content clearfix" onSubmit={handleSubmit(onSubmit)}>
                 <Row className="gy-4">
+                    <Col md="6">
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="numberKk">Nomor Kartu Keluarga</label>
+                            <div className="form-control-wrap">
+                                <div className="input-group input-group-sm">
+                                    <input
+                                        type="number"
+                                        id="numberKk"
+                                        className="form-control"
+                                        placeholder="Ex. 3320011103937776"
+                                        {...register('numberKk', {required: true})}
+                                        onChange={(e) => onInputChange(e)}
+                                    />
+                                    <div className="input-group-append">
+                                        <Button color="primary" type="button" onClick={(e) => checkParent(e)}>
+                                            {loading ? <Spinner size="sm"/> : <Icon name="search"/>}
+                                        </Button>
+                                    </div>
+                                </div>
+                                {errors.numberKk && <span className="invalid">Kolom tidak boleh kosong</span>}
+                            </div>
+                        </div>
+                    </Col>
+                    <Col md="6">
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="headFamily">Nama Kepala Keluarga</label>
+                            <div className="form-control-wrap">
+                                <input
+                                    type="text"
+                                    id="headFamily"
+                                    className="form-control"
+                                    placeholder="Ex. headFamily"
+                                    {...register('headFamily', {required: true})}
+                                    onChange={(e) => onInputChange(e)}
+                                />
+                                {errors.headFamily && <span className="invalid">Kolom tidak boleh kosong</span>}
+                            </div>
+                        </div>
+                    </Col>
                     <Col md="6">
                         <div className="form-group">
                             <label className="form-label" htmlFor="fatherStatus">Status Ayah</label>
@@ -104,7 +211,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="fatherName"
                                     className="form-control"
                                     placeholder="Ex. Muhammad Arif Muntaha"
-                                    {...register('fatherName', { required: true })}
+                                    {...register('fatherName', {required: true})}
                                     onChange={(e) => onInputChange(e)}
                                 />
                                 {errors.fatherName && <span className="invalid">Kolom tidak boleh kosong</span>}
@@ -120,7 +227,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="motherName"
                                     className="form-control"
                                     placeholder="Ex. Eka Maftukhatul Khoeryah"
-                                    {...register('motherName', { required: true })}
+                                    {...register('motherName', {required: true})}
                                     onChange={(e) => onInputChange(e)}
                                 />
                                 {errors.motherName && <span className="invalid">Kolom tidak boleh kosong</span>}
@@ -136,7 +243,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="fatherNIK"
                                     className="form-control"
                                     placeholder="Ex. 3320011103940007"
-                                    {...register('fatherNIK', { required: formData.fatherStatus === 1 })}
+                                    {...register('fatherNIK', {required: formData.fatherStatus === 1})}
                                     disabled={formData.fatherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -153,7 +260,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="motherNIK"
                                     className="form-control"
                                     placeholder="Ex. 3320011103940007"
-                                    {...register('motherNIK', { required: formData.motherStatus === 1 })}
+                                    {...register('motherNIK', {required: formData.motherStatus === 1})}
                                     disabled={formData.motherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -170,7 +277,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="fatherBirthplace"
                                     className="form-control"
                                     placeholder="Ex. Jepara"
-                                    {...register('fatherBirthplace', { required: formData.fatherStatus === 1 })}
+                                    {...register('fatherBirthplace', {required: formData.fatherStatus === 1})}
                                     disabled={formData.fatherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -191,7 +298,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     }}
                                     disabled={formData.fatherStatus !== 1}
                                     dateFormat={"dd/MM/yyyy"}
-                                    className="form-control date-picker" />{" "}
+                                    className="form-control date-picker"/>{" "}
                                 {errors.fatherBirthdate && <span className="invalid">Kolom tidak boleh kosong</span>}
                             </div>
                         </div>
@@ -205,7 +312,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="motherBirthplace"
                                     className="form-control"
                                     placeholder="Ex. Kebumen"
-                                    {...register('motherBirthplace', { required: formData.motherStatus === 1 })}
+                                    {...register('motherBirthplace', {required: formData.motherStatus === 1})}
                                     disabled={formData.motherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -226,7 +333,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     }}
                                     disabled={formData.motherStatus !== 1}
                                     dateFormat={"dd/MM/yyyy"}
-                                    className="form-control date-picker" />{" "}
+                                    className="form-control date-picker"/>{" "}
                                 {errors.motherBirthdate && <span className="invalid">Kolom tidak boleh kosong</span>}
                             </div>
                         </div>
@@ -240,7 +347,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="fatherEmail"
                                     className="form-control"
                                     placeholder="Ex. marifmuntaha@gmail.com"
-                                    {...register('fatherEmail', { required: formData.fatherStatus === 1 })}
+                                    {...register('fatherEmail', {required: formData.fatherStatus === 1})}
                                     disabled={formData.fatherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -257,7 +364,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="fatherPhone"
                                     className="form-control"
                                     placeholder="Ex. 6282229366500"
-                                    {...register('fatherPhone', { required: formData.fatherStatus === 1 })}
+                                    {...register('fatherPhone', {required: formData.fatherStatus === 1})}
                                     disabled={formData.fatherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -274,7 +381,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="motherEmail"
                                     className="form-control"
                                     placeholder="Ex. marifmuntaha@gmail.com"
-                                    {...register('motherEmail', { required: formData.motherStatus === 1 })}
+                                    {...register('motherEmail', {required: formData.motherStatus === 1})}
                                     disabled={formData.motherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -291,7 +398,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="motherPhone"
                                     className="form-control"
                                     placeholder="Ex. 6282229366500"
-                                    {...register('motherPhone', { required: formData.motherStatus === 1 })}
+                                    {...register('motherPhone', {required: formData.motherStatus === 1})}
                                     disabled={formData.motherStatus !== 1}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -324,7 +431,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="guardName"
                                     className="form-control"
                                     placeholder="Ex. Muhammad Arif Muntaha"
-                                    {...register('guardName', { required: true })}
+                                    {...register('guardName', {required: true})}
                                     disabled={formData.guardStatus !== 3}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -336,17 +443,18 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                         <div className="form-group">
                             <label className="form-label" htmlFor="guardNIK">NIK Wali</label>
                             <div className="form-control-wrap">
+
                                 <input
                                     type="text"
                                     id="guardNIK"
                                     className="form-control"
                                     placeholder="Ex. 3320011103940007"
-                                    {...register('guardNIK', { required: true })}
+                                    {...register('guardNIK', {required: true})}
                                     disabled={formData.guardStatus !== 3}
                                     onChange={(e) => onInputChange(e)}
                                 />
-                                {errors.guardNIK && <span className="invalid">Kolom tidak boleh kosong</span>}
                             </div>
+                            {errors.guardNIK && <span className="invalid">Kolom tidak boleh kosong</span>}
                         </div>
                     </Col>
                     <Col md="3">
@@ -358,7 +466,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="guardBirthplace"
                                     className="form-control"
                                     placeholder="Ex. Jepara"
-                                    {...register('guardBirthplace', { required: true })}
+                                    {...register('guardBirthplace', {required: true})}
                                     onChange={(e) => onInputChange(e)}
                                     disabled={formData.guardStatus !== 3}
                                 />
@@ -379,7 +487,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     }}
                                     disabled={formData.guardStatus !== 3}
                                     dateFormat={"dd/MM/yyyy"}
-                                    className="form-control date-picker" />{" "}
+                                    className="form-control date-picker"/>{" "}
                                 {errors.guardBirthDate && <span className="invalid">Kolom tidak boleh kosong</span>}
                             </div>
                         </div>
@@ -393,7 +501,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="guardEmail"
                                     className="form-control"
                                     placeholder="Ex. marifmuntaha@gmail.com"
-                                    {...register('guardEmail', { required: true })}
+                                    {...register('guardEmail', {required: true})}
                                     disabled={formData.guardStatus !== 3}
                                     onChange={(e) => onInputChange(e)}
                                 />
@@ -410,7 +518,7 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                                     id="guardPhone"
                                     className="form-control"
                                     placeholder="Ex. 6282229366500"
-                                    {...register('guardPhone', { required: true })}
+                                    {...register('guardPhone', {required: true})}
                                     disabled={formData.guardStatus !== 3}
                                     onChange={(e) => onInputChange(e)}
                                 />
