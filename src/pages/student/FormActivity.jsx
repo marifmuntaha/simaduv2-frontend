@@ -4,9 +4,6 @@ import {Button, Col, Row} from "reactstrap";
 import {RSelect} from "../../components";
 import {get as getYear} from "../../utils/api/master/year"
 import {get as getInstitution} from "../../utils/api/institution"
-import {store as storeUser, destroy as destroyUser} from "../../utils/api/user"
-import {store as storeStudent, destroy as destroyStudent} from "../../utils/api/student"
-import {store as storeActivity} from "../../utils/api/student/activity"
 
 const FormActivity = ({formData, setFormData, ...props}) => {
     const [yearOptions, setYearOptions] = useState([]);
@@ -27,41 +24,7 @@ const FormActivity = ({formData, setFormData, ...props}) => {
     const {  control, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = () => {
-        const params = {
-            name: formData.name,
-            email: formData.email,
-            username: formData.nisn,
-            password: formData.birthplace,
-            phone: formData.phone,
-            role: '5'
-        }
-        storeUser(params).then(resp=>{
-            const params = {
-                userId: resp.id,
-                nisn: formData.nisn,
-                nism: formData.nism,
-                name: formData.name,
-                gender: formData.gender,
-                birthplace: formData.birthplace,
-                birthdate: formData.birthdate,
-                email: formData.email,
-                phone: formData.phone,
-            }
-            storeStudent(params).then((resp) => {
-                const params = {
-                    status: formData.status,
-                    studentId: resp.id,
-                    yearId: formData.yearId,
-                    institutionId: formData.institutionId,
-                }
-                storeActivity(params).catch(()=>{
-                    destroyStudent(resp.id)
-                    destroyUser(resp.userId)
-                })
-            }).catch(() => {
-                destroyUser(resp.id)
-            })
-        })
+
     };
 
     useEffect(() => {
