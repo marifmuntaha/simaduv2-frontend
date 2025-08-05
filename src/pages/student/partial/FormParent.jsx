@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {Col, Icon, Row, RSelect, RToast} from "../../components";
+import {Col, Icon, Row, RSelect, RToast} from "../../../components/index.jsx";
 import DatePicker from "react-datepicker";
 import moment from "moment/moment";
 import "moment/locale/id"
 import {Button, Spinner} from "reactstrap";
-import {get as getParent} from "../../utils/api/student/parent"
+import {get as getParent} from "../../../utils/api/student/parent.jsx"
 
 const FormParent = ({formData, setFormData, methods, ...props}) => {
     const [loading, setLoading] = useState(false);
@@ -77,6 +77,8 @@ const FormParent = ({formData, setFormData, methods, ...props}) => {
                 setValue('guardPhone', parent.guardPhone)
                 setFormData({
                     ...formData,
+                    parentId: parent.id,
+                    headFamily: parent.headFamily,
                     fatherStatus: parseInt(parent.fatherStatus),
                     fatherName: parent.fatherName,
                     fatherNIK: parent.fatherNIK,

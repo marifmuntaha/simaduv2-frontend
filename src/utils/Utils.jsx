@@ -168,7 +168,7 @@ export const role = (roleId) => {
         case '4':
             return "Teller"
         case '5':
-            return "Walikelas"
+            return "Siswa"
         default:
             return "Pengunjung"
     }

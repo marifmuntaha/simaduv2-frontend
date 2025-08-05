@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {Button, Col, Row} from "reactstrap";
-import {RSelect} from "../../components";
-import {get as getYear} from "../../utils/api/master/year"
-import {get as getInstitution} from "../../utils/api/institution"
+import {RSelect} from "../../../components/index.jsx";
+import {get as getYear} from "../../../utils/api/master/year.jsx"
+import {get as getInstitution} from "../../../utils/api/institution.jsx"
 
 const FormActivity = ({formData, setFormData, ...props}) => {
     const [yearOptions, setYearOptions] = useState([]);

@@ -14,11 +14,10 @@ import Level from "../pages/master/level";
 import Major from "../pages/master/major";
 import Year from "../pages/master/year";
 import Institution from "../pages/institution";
-import Student from "../pages/student";
-import {Add as AddStudent} from "../pages/student/partial";
+import {List as ListStudent, Add as AddStudent, View as ViewStudent} from "../pages/student"
 import Program from "../pages/institution/program";
 import Teacher from "../pages/teacher";
-import Rombel from "../pages/institution/rombel/index";
+import Rombel from "../pages/institution/rombel";
 
 
 const Router = () => {
@@ -38,8 +37,9 @@ const Router = () => {
                     <Route path="/data-lembaga" element={<Institution/>} />
                     <Route path="/data-lembaga/rombongan-belajar" element={<Rombel/>} />
                     <Route path="/data-lembaga/program" element={<Program/>} />
-                    <Route path="/data-siswa" element={<Student/>} />
+                    <Route path="/data-siswa" element={<ListStudent/>} />
                     <Route path="/data-siswa/tambah" element={<AddStudent/>} />
+                    <Route path="/data-siswa/:id/lihat" element={<ViewStudent/>} />
                     <Route path="/data-guru" element={<Teacher/>} />
                 </Route>
             </Route>

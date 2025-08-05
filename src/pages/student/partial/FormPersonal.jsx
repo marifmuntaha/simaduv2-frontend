@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Button, Col, Row} from "reactstrap";
-import {RSelect} from "../../components";
+import {RSelect} from "../../../components/index.jsx";
 import DatePicker from "react-datepicker";
 import moment from "moment";
 

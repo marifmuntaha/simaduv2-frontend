@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Col, Row, RSelect} from "../../components";
+import {Col, Row, RSelect} from "../../../components/index.jsx";
 import {Button} from "reactstrap";
 
 const FormAddress = ({formData, setFormData, methods, ...props}) => {
